@@ -1,88 +1,65 @@
-# Off-Term Studio — AI PM 데모
+# Off-Term Studio v2
 
-방학마다 비는 대학의 장비와 학생 인력을 기업 외주에 연결하는 캠퍼스 인하우스 프로덕션의 운영 데모입니다.
+방학마다 비는 대학의 장비와 학생 인력을 기업 외주에 연결하는 캠퍼스 인하우스 프로덕션 데모.
 
-```
-브리프 입력 → AI 작업 분해 → AI 팀 구성(선정 이유) → 사람이 조정 → 수락 → 프로젝트 보드
-```
+## 화면
 
-## 폴더 구조
-
-```
-off-term-studio/
-├─ netlify.toml                  배포 설정 (public 폴더 게시, 함수 폴더 지정)
-├─ DEPLOY.md                     배포 튜토리얼
-├─ netlify/functions/api.mjs     AI API 프록시 (Claude 또는 Gemini) (/api/health, /api/analyze, /api/match)
-├─ public/
-│  ├─ index.html                 앱 전체 (발주 분석 · 프로젝트 보드 · 크루 풀)
-│  └─ shared/engine.js           역할·장비·가상 크루 52명·점수·견적·규칙 기반 폴백 (브라우저와 함수가 같이 씀)
-└─ .env.example                  로컬 개발용 환경변수 예시
-```
-
-## 동작 방식
-
-AI가 하는 일과 코드가 하는 일을 나눴습니다. 심사에서 "설명 가능성"을 보여주기 위해서입니다.
-
-| 단계 | 담당 | 내용 |
+| 경로 | 누구 | 내용 |
 |---|---|---|
-| 작업 분해 | AI (`/api/analyze`) | 역할·인원·1인 공수·필요 장비·리스크·발주사 확인 질문 |
-| 후보 선별 | 코드 (`engine.js`) | 전공 30 · 스킬 일치 · 포트폴리오 8 · 평점 · 가능시간 ± · 진행 중 배정 −25 점수로 역할별 상위 6명 |
-| 팀 구성 | AI (`/api/match`) | 후보 중 선택 + 데이터 근거 선정 이유 + 팀 리스크 메모 |
-| 검증 | 코드 | 후보 밖 학생·중복 배정 제거, 빈 자리는 점수순 보충(“규칙” 배지) |
-| 견적 | 코드 | Σ(인원 × 공수 × 크루 시급) = 학생 페이 → ÷ 60% = 계약금, 직접원가 10%, 마진 |
+| `/` | 모두 | 기업 / 학생 선택 |
+| `/company` | 기업 | 내 발주 목록 |
+| `/company/new` | 기업 | 브리프 → AI 분해 → AI 팀 구성 → 조정 → 발주 |
+| `/company/orders/:id` | 기업 | 컨펌 교수 · 퇴직 전문가 멘토 · 학생 팀 · 지원자 · 진행 단계 |
+| `/student` | 학생 | 모집 중인 과제 (프로필 있으면 적합도순) |
+| `/student/projects/:id` | 학생 | 역할별 예상 페이 · 지원 |
+| `/student/profile` | 학생 | 이력서(PDF/TXT) → AI가 프로필 작성 → 기업 발주 매칭 후보로 등록 |
+| `/student/applications` | 학생 | 지원 현황 (검토 중 / 팀 합류 / 마감) |
 
-AI 응답은 `tool_choice`로 도구 호출을 강제해 JSON 형태를 보장하고, 서버에서 한 번 더 검증합니다. 형식이 틀리거나 일시 오류면 1회 재시도하고, 그래도 실패하면 화면에 사유를 띄운 뒤 규칙 기반 결과로 이어갑니다(결과에 “규칙 · AI 미사용” 배지가 붙습니다).
+주소는 `/#/company`처럼 `#`이 붙습니다. 서버 설정 없이 새로고침해도 페이지가 유지되게 하려는 선택입니다.
 
-결과 배지는 세 종류입니다. **AI**는 AI가 고른 것, **규칙**은 점수 엔진이 채운 것, **직접**은 사람이 교체한 것입니다.
+## 구조
 
-## 배포
+```
+index.html                 Vite 진입점
+src/
+  main.jsx                 라우팅
+  styles.css               디자인 토큰 · 다크모드
+  lib/engine.js            역할·가상 크루/교수/멘토·점수·견적·예산 보정·규칙 폴백 (함수와 공유)
+  lib/store.jsx            브라우저 저장소(localStorage) 상태
+  lib/seed.js              예시 과제
+  lib/api.js               API 호출
+  components/ui.jsx        헤더 · 공통 UI
+  pages/Landing.jsx
+  pages/company/*.jsx
+  pages/student/*.jsx
+netlify/functions/api.mjs  /api/health · /api/analyze · /api/match · /api/resume
+static/                    그대로 복사되는 정적 파일 (favicon)
+```
 
-단계별 튜토리얼은 **[DEPLOY.md](DEPLOY.md)** 에 있습니다. 요약하면:
+- 기술: React 19 + Vite 8 + React Router 7, 아이콘 lucide-react, 글꼴 Pretendard
+- 데이터: 방문자 브라우저에만 저장. 심사위원마다 자기만의 데모 공간을 봅니다.
+- 인물: 학생·교수·퇴직 멘토·발주사 모두 가상. 학과명만 상명대 서울캠퍼스 편제를 따릅니다.
 
-1. AI 키 발급 — Gemini(무료, 카드 불필요) 또는 Claude(선불 $5)
-2. GitHub 저장소에 이 폴더 내용 업로드
-3. Netlify에서 저장소 가져오기 → 환경변수에 키 입력 → 배포
-4. `https://<사이트>.netlify.app/api/health` 에서 `"ai":true` 확인
+## AI가 하는 일 / 코드가 하는 일
 
-## 환경변수
-
-| 이름 | 기본값 | 설명 |
+| 단계 | AI | 코드 |
 |---|---|---|
-| `GEMINI_API_KEY` | (없음) | Gemini 무료 티어로 동작 |
-| `ANTHROPIC_API_KEY` | (없음) | Claude로 동작. 둘 다 있으면 Claude 우선 |
-| `AI_PROVIDER` | 자동 | `gemini` 또는 `anthropic`으로 강제 |
-| `AI_MODEL` | `claude-sonnet-5` / `gemini-3.8-flash` | 모델 이름 직접 지정 (예: `claude-haiku-4-5-20251001`) |
-| `ALLOWED_ORIGINS` | (없음) | 다른 도메인에서 API를 부를 때만. 쉼표로 구분 |
+| 발주 분석 | 역할·인원·공수·수주 판단(수락/조건부/거절) | 형식 검증, 예산 상한 보정 |
+| 팀 구성 | 후보 중 선택 + 이유 | 후보 선별(점수), 잘못된 선택 제거, 내부 ID 제거 |
+| 이력서 | 전공·스킬·강점 추출(개인정보 제외) | 허용된 스킬만 통과, 사용자가 확인 후 저장 |
+| 교수·멘토 | — | 주력 역할 기준 배정 |
 
-## 비용과 보호 장치
+## 환경변수 (Netlify)
 
-- 분석 1회 = AI 호출 2회(분해 + 매칭). Claude Sonnet 5 기준 1회 30~50원 수준으로 추정합니다(추정치, 콘솔 Usage에서 확인). Gemini 무료 티어는 0원이지만 입력이 Google 서비스 개선에 쓰일 수 있고 요청 한도가 있습니다. 화면 안내 문구도 사용 중인 AI에 맞춰 바뀝니다.
-- Netlify Free 플랜은 월 300크레딧이고 프로덕션 배포 1회가 15크레딧입니다. 커밋을 모아서 올리세요.
-- IP당 분당 20회 레이트리밋(Netlify 코드 기반 규칙)
-- 다른 출처(Origin)에서 온 브라우저 요청 차단
-- 브리프 3,000자 제한, 출력 토큰 상한
-- API 키는 서버 함수 안에서만 쓰이고 브라우저로 나가지 않습니다. `/api/health`도 키 존재 여부와 AI 종류만 반환합니다.
+`ANTHROPIC_API_KEY` 또는 `GEMINI_API_KEY` 중 하나. 선택: `AI_PROVIDER`, `AI_MODEL`.
+Gemini 설정에서는 PDF 이력서를 읽지 못하므로 텍스트 붙여넣기를 안내합니다.
 
-## 로컬에서 보기
+## 로컬 실행
 
-- **AI 없이**: `public/index.html`을 브라우저로 열면 규칙 기반 모드로 전체 흐름이 동작합니다.
-- **AI 포함**: `.env.example`을 `.env`로 복사해 키를 넣고
-  ```bash
-  npx netlify-cli dev
-  ```
-  → http://localhost:8888
+```bash
+npm install
+npm run dev        # AI 없이 규칙 모드로 화면 확인
+npx netlify-cli dev   # AI 포함 (.env에 키)
+```
 
-## 데이터 고지
-
-크루 52명과 예시 발주사는 모두 가상입니다. 학부·전공명은 상명대학교 서울캠퍼스 편제를 따랐습니다. 프로젝트 보드는 방문자 브라우저의 localStorage에만 저장되어 심사위원마다 각자의 보드를 보게 됩니다.
-
-## 문제 해결
-
-| 증상 | 원인·조치 |
-|---|---|
-| 상단 칩이 “API 없음” | 함수가 배포되지 않음. Deploy log에서 Functions 항목에 `api` 가 있는지 확인 |
-| “AI 키 미설정” | 환경변수 추가 후 재배포하지 않음 |
-| “서버의 API 키가 유효하지 않습니다” | 키 오타 또는 폐기된 키 |
-| “무료 사용량 한도에 걸렸습니다” | Gemini 무료 티어 분당/일일 한도. 잠시 후 또는 다음 날 |
-| “AI 요청이 거부되었습니다” | 모델 이름 오류, 결제 미등록, 지출 한도 도달. Netlify Functions 로그에 `[anthropic] 400 ...` 또는 `[gemini] 400 ...` 원문이 찍힘 |
-| “요청이 너무 잦습니다” | 레이트리밋. 1분 뒤 재시도 |
+업데이트·배포 방법은 [DEPLOY.md](DEPLOY.md).
