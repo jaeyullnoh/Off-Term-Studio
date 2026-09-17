@@ -1,0 +1,1079 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Off-Term Studio</title>
+<meta name="description" content="방학마다 비는 대학의 장비와 학생 인력을 기업 외주에 연결하는 캠퍼스 인하우스 프로덕션. AI PM이 브리프를 분해하고 학생 크루를 배정합니다.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232448C9'/%3E%3Cpath d='M9 16a7 7 0 1 0 14 0a7 7 0 1 0-14 0' fill='none' stroke='white' stroke-width='3'/%3E%3Cpath d='M16 4v6' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --ground: #EDEFEA;
+  --surface: #FFFFFF;
+  --surface-2: #F5F6F2;
+  --ink: #141B22;
+  --muted: #5A6470;
+  --faint: #8A939C;
+  --line: #D6DAD2;
+  --line-strong: #B9BFB5;
+  --accent: #2448C9;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E4E9FA;
+  --ai: #9A6700;
+  --ai-soft: #FBF1DC;
+  --human: #1F6F4A;
+  --human-soft: #DFF1E7;
+  --warn: #9A4A00;
+  --warn-soft: #FDEBD8;
+  --bad: #B42318;
+  --shadow: 0 1px 0 rgba(20,27,34,.04), 0 8px 24px -12px rgba(20,27,34,.18);
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-cond: "Barlow Condensed", "IBM Plex Sans KR", "Arial Narrow", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0E1318; --surface: #151C23; --surface-2: #1B232B; --ink: #E6EAEE; --muted: #9AA5AF; --faint: #6F7A84;
+    --line: #29333C; --line-strong: #3A4550; --accent: #8AA4FF; --accent-ink: #0E1318; --accent-soft: #1D2747;
+    --ai: #E3B04F; --ai-soft: #2D2413; --human: #6FCF9D; --human-soft: #15291F; --warn: #F0A35E; --warn-soft: #2E1F12; --bad: #FF8A7F;
+    --shadow: 0 1px 0 rgba(0,0,0,.2), 0 10px 30px -14px rgba(0,0,0,.6); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0E1318; --surface: #151C23; --surface-2: #1B232B; --ink: #E6EAEE; --muted: #9AA5AF; --faint: #6F7A84;
+  --line: #29333C; --line-strong: #3A4550; --accent: #8AA4FF; --accent-ink: #0E1318; --accent-soft: #1D2747;
+  --ai: #E3B04F; --ai-soft: #2D2413; --human: #6FCF9D; --human-soft: #15291F; --warn: #F0A35E; --warn-soft: #2E1F12; --bad: #FF8A7F;
+  --shadow: 0 1px 0 rgba(0,0,0,.2), 0 10px 30px -14px rgba(0,0,0,.6); color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--ground); color: var(--ink);
+  font: 15px/1.6 var(--font-body); -webkit-font-smoothing: antialiased;
+  padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+}
+[hidden] { display: none !important; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3, h4 { margin: 0; line-height: 1.3; text-wrap: balance; }
+p { margin: 0; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; }
+
+/* ── top bar ───────────────────────────── */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--ground) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.topbar .wrap { display: flex; align-items: center; gap: 16px; min-height: 60px; flex-wrap: wrap; padding-block: 8px; }
+.brand { display: flex; align-items: baseline; gap: 10px; margin-right: auto; }
+.wordmark { font-family: var(--font-cond); font-weight: 700; font-size: 26px; letter-spacing: .02em; text-transform: uppercase; line-height: 1; }
+.wordmark span { color: var(--accent); }
+.brand small { color: var(--muted); font-size: 12px; }
+.status { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); border: 1px solid var(--line); background: var(--surface); padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.status i { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); }
+.status[data-mode="ai"] i { background: var(--human); box-shadow: 0 0 0 3px var(--human-soft); }
+.status[data-mode="nokey"] i, .status[data-mode="offline"] i { background: var(--ai); }
+.tabs { display: flex; gap: 4px; }
+.tab { border: 0; background: transparent; padding: 8px 12px; border-radius: 8px; color: var(--muted); font-weight: 600; font-size: 14px; }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--ground); }
+.tab .count { font-family: var(--font-mono); font-size: 12px; margin-left: 4px; opacity: .75; }
+
+/* ── intro + steps ─────────────────────── */
+.intro { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 16px 32px; align-items: end; padding-block: 28px 18px; }
+.intro h1 { font-size: clamp(22px, 2.6vw, 30px); font-weight: 700; letter-spacing: -.02em; }
+.intro p { color: var(--muted); margin-top: 6px; max-width: 62ch; }
+.steps { display: flex; gap: 0; list-style: none; margin: 0; padding: 0; font-size: 13px; }
+.steps li { display: flex; align-items: center; gap: 6px; color: var(--faint); padding: 0 10px; position: relative; white-space: nowrap; }
+.steps li + li::before { content: ""; position: absolute; left: -6px; width: 12px; height: 1px; background: var(--line-strong); }
+.steps b { font-family: var(--font-cond); font-size: 15px; width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line-strong); }
+.steps li[data-s="done"] { color: var(--muted); }
+.steps li[data-s="done"] b { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+.steps li[data-s="active"] { color: var(--ink); font-weight: 600; }
+.steps li[data-s="active"] b { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+/* ── workspace ─────────────────────────── */
+.workspace { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 20px; align-items: start; padding-bottom: 48px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.brief { position: sticky; top: 76px; padding: 18px; display: grid; gap: 14px; }
+.eyebrow { font-family: var(--font-cond); font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.examples { display: grid; gap: 6px; }
+.example { text-align: left; border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 8px 10px; display: grid; gap: 1px; }
+.example:hover { border-color: var(--line-strong); }
+.example[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.example strong { font-size: 13.5px; font-weight: 600; }
+.example span { font-size: 12px; color: var(--muted); }
+label.field { display: grid; gap: 5px; font-size: 13px; font-weight: 600; }
+label.field em { font-style: normal; font-weight: 400; color: var(--faint); }
+textarea, input[type="text"], select { width: 100%; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 10px; padding: 9px 11px; font-weight: 400; font-size: 14px; }
+textarea { min-height: 190px; resize: vertical; line-height: 1.55; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 10px; padding: 9px 14px; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn:hover:not(:disabled) { border-color: var(--ink); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.08); border-color: var(--accent); }
+.btn.big { padding: 12px 16px; font-size: 15px; width: 100%; }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--muted); padding: 6px 8px; }
+.btn.ghost:hover:not(:disabled) { color: var(--ink); border-color: transparent; background: var(--surface-2); }
+.hint { font-size: 12px; color: var(--muted); }
+.err { color: var(--bad); font-size: 13px; }
+
+/* ── work order ────────────────────────── */
+.result { display: grid; gap: 16px; min-width: 0; }
+.notice { border-radius: 12px; padding: 10px 14px; font-size: 13.5px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: space-between; background: var(--warn-soft); color: var(--warn); }
+.notice[data-kind="info"] { background: var(--ai-soft); color: var(--ai); }
+.howto { padding: 22px; display: grid; gap: 18px; }
+.howto h2 { font-size: 19px; }
+.howto-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+.howto-grid div { border-top: 2px solid var(--ink); padding-top: 10px; display: grid; gap: 4px; }
+.howto-grid strong { font-size: 14.5px; }
+.howto-grid p { font-size: 13px; color: var(--muted); }
+.formula { font-family: var(--font-mono); font-size: 12.5px; background: var(--surface-2); border: 1px dashed var(--line-strong); padding: 10px 12px; border-radius: 10px; color: var(--muted); overflow-x: auto; white-space: nowrap; }
+
+.progress { padding: 22px; display: grid; gap: 12px; }
+.progress ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.progress li { display: flex; align-items: center; gap: 10px; color: var(--faint); }
+.progress li[data-s="active"] { color: var(--ink); font-weight: 600; }
+.progress li[data-s="done"] { color: var(--muted); }
+.spin { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line-strong); flex: none; }
+li[data-s="active"] .spin { border-color: var(--accent); border-right-color: transparent; animation: spin .8s linear infinite; }
+li[data-s="done"] .spin { background: var(--ink); border-color: var(--ink); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.order { padding: 0; overflow: hidden; }
+.order-head { padding: 18px 20px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); }
+.order-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 12.5px; color: var(--muted); }
+.code { font-family: var(--font-cond); font-weight: 600; font-size: 15px; letter-spacing: .06em; color: var(--ink); }
+.badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.badge.ai { background: var(--ai-soft); color: var(--ai); }
+.badge.rule { background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+.badge.human { background: var(--human-soft); color: var(--human); }
+.badge.example { background: var(--surface-2); color: var(--faint); border: 1px dashed var(--line-strong); }
+.order-head h2 { font-size: 22px; letter-spacing: -.015em; }
+.order-head .summary { color: var(--muted); max-width: 70ch; }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border-bottom: 1px solid var(--line); }
+.fact { padding: 14px 20px; display: grid; gap: 6px; align-content: start; }
+.fact:nth-child(odd) { border-right: 1px solid var(--line); }
+.fact:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+.fact h3 { font-family: var(--font-cond); font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.fact ul { margin: 0; padding-left: 16px; font-size: 13.5px; display: grid; gap: 3px; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip { font-size: 12px; padding: 2px 8px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.chip.on { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+.weeks { display: inline-flex; align-items: center; gap: 6px; }
+.weeks select { width: auto; padding: 3px 8px; font-size: 13px; }
+
+.team { padding: 18px 20px; display: grid; gap: 12px; }
+.team-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.team-head h3 { font-size: 16px; }
+.teamnote { font-size: 13px; color: var(--ai); background: var(--ai-soft); border-radius: 10px; padding: 8px 12px; }
+.role { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.role-top { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px 16px; padding: 12px 14px; align-items: start; }
+.role-top h4 { font-size: 15px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.role-top p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.role-top .chips { margin-top: 6px; }
+.controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.stepper { display: inline-flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 9px; overflow: hidden; background: var(--surface); }
+.stepper button { border: 0; background: transparent; width: 30px; height: 32px; font-size: 16px; color: var(--muted); }
+.stepper button:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); }
+.stepper button:disabled { opacity: .35; cursor: not-allowed; }
+.stepper output, .stepper input { min-width: 50px; text-align: center; font-family: var(--font-mono); font-size: 13px; border: 0; border-inline: 1px solid var(--line); height: 32px; line-height: 32px; background: transparent; padding: 0 4px; }
+.stepper input { width: 56px; -moz-appearance: textfield; }
+.stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.ctl-label { font-size: 11.5px; color: var(--faint); display: grid; gap: 2px; justify-items: center; }
+.people { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.person { display: grid; grid-template-columns: 36px minmax(0,1fr) auto 48px; gap: 4px 12px; padding: 10px 14px; align-items: center; }
+.person + .person, .alts + .person { border-top: 1px dashed var(--line); }
+.avatar { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-weight: 700; font-size: 14px; background: var(--accent-soft); color: var(--accent); }
+.avatar.empty { background: var(--surface-2); color: var(--faint); border: 1px dashed var(--line-strong); }
+.who { min-width: 0; display: grid; gap: 2px; }
+.who .name { font-weight: 600; font-size: 14px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.who .name small { font-weight: 400; color: var(--muted); font-size: 12.5px; }
+.reason { font-size: 13px; color: var(--ink); display: flex; gap: 6px; align-items: baseline; }
+.reason .badge { flex: none; }
+.person .money { text-align: right; display: grid; gap: 2px; justify-items: end; }
+.person .money .num { font-size: 13px; }
+.person .money small { font-size: 11.5px; color: var(--faint); }
+.alts { background: var(--surface-2); border-top: 1px dashed var(--line); padding: 10px 14px 12px 62px; display: grid; gap: 6px; }
+.alts p { font-size: 12px; color: var(--muted); }
+.alt { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: center; text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 9px; padding: 7px 10px; }
+.alt:hover { border-color: var(--accent); }
+.alt strong { font-size: 13.5px; }
+.alt span { font-size: 12px; color: var(--muted); }
+.alt .score { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.role-foot { display: flex; justify-content: space-between; gap: 10px; padding: 8px 14px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); background: var(--surface-2); border-radius: 0 0 12px 12px; flex-wrap: wrap; }
+.add-role { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.add-role select { width: auto; min-width: 200px; }
+
+.quote { padding: 18px 20px; border-top: 1px solid var(--line); display: grid; gap: 12px; background: var(--surface-2); }
+.quote-grid { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(0,1fr); gap: 20px; align-items: start; }
+.qtable-wrap { overflow-x: auto; }
+table.qtable { width: 100%; border-collapse: collapse; font-size: 13px; }
+.qtable th, .qtable td { padding: 7px 0; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.qtable th { font-weight: 600; font-size: 12px; color: var(--muted); }
+.qtable td.amt, .qtable th.amt { text-align: right; white-space: nowrap; padding-left: 12px; }
+.qtable td.calc { color: var(--muted); font-family: var(--font-mono); font-size: 12px; padding-left: 12px; }
+.qtable tfoot td { border-bottom: 0; font-weight: 600; padding-top: 10px; }
+.totals { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.totals div { display: flex; justify-content: space-between; gap: 10px; padding: 9px 14px; font-size: 13.5px; }
+.totals div + div { border-top: 1px solid var(--line); }
+.totals .label small { display: block; color: var(--faint); font-size: 11.5px; }
+.totals .contract { background: var(--ink); color: var(--ground); }
+.totals .contract { align-items: center; }
+.totals .num { white-space: nowrap; }
+.totals .contract .num { font-size: 20px; font-weight: 500; }
+.totals .contract small { color: color-mix(in srgb, var(--ground) 65%, transparent); }
+.budget-check { font-size: 13px; padding: 8px 12px; border-radius: 10px; }
+.budget-check[data-ok="true"] { background: var(--human-soft); color: var(--human); }
+.budget-check[data-ok="false"] { background: var(--warn-soft); color: var(--warn); }
+.accept { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.accept p { font-size: 13px; color: var(--muted); max-width: 52ch; }
+.accept .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── board ─────────────────────────────── */
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); margin-bottom: 18px; }
+.kpi { padding: 14px 18px; border-right: 1px solid var(--line); display: grid; gap: 2px; }
+.kpi:last-child { border-right: 0; }
+.kpi span { font-size: 12.5px; color: var(--muted); }
+.kpi strong { font-family: var(--font-mono); font-weight: 500; font-size: 20px; font-variant-numeric: tabular-nums; }
+.board { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; align-items: start; padding-bottom: 48px; }
+.col { background: color-mix(in srgb, var(--surface-2) 70%, var(--ground)); border: 1px solid var(--line); border-radius: 14px; padding: 10px; display: grid; gap: 10px; min-width: 0; }
+.col-head { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px; }
+.col-head h3 { font-size: 14px; }
+.col-head .num { font-size: 12px; color: var(--muted); }
+.col-empty { font-size: 12.5px; color: var(--faint); padding: 14px 6px; text-align: center; border: 1px dashed var(--line-strong); border-radius: 10px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 8px; }
+.card.fresh { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.card-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.card h4 { font-size: 14.5px; }
+.card .client { font-size: 12.5px; color: var(--muted); }
+.card .figures { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
+.card .figures strong { color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+.crew-line { display: flex; flex-wrap: wrap; gap: 4px; }
+.crew-line span { font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; white-space: nowrap; }
+.crew-line span em { font-style: normal; color: var(--faint); }
+.card-actions { display: flex; justify-content: space-between; gap: 6px; }
+.card-actions .btn { padding: 4px 8px; font-size: 12.5px; border-radius: 8px; }
+
+/* ── crew ──────────────────────────────── */
+.crew-tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.crew-tools input { max-width: 260px; }
+.crew-tools select { width: auto; }
+.crew-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; padding-bottom: 48px; }
+.crew { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 8px; grid-template-rows: auto auto 1fr auto; }
+.crew-top { display: flex; gap: 10px; align-items: center; }
+.crew-top .who .name { font-size: 14.5px; }
+.crew .stats { display: flex; justify-content: space-between; gap: 6px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
+
+footer.site { border-top: 1px solid var(--line); padding-block: 18px 28px; font-size: 12.5px; color: var(--muted); }
+footer.site .wrap { display: flex; gap: 8px 20px; flex-wrap: wrap; justify-content: space-between; }
+
+@media (max-width: 1080px) {
+  .quote-grid { grid-template-columns: 1fr; }
+  .board { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 900px) {
+  .workspace { grid-template-columns: 1fr; }
+  .brief { position: static; }
+  .intro { grid-template-columns: 1fr; }
+  .steps { flex-wrap: wrap; row-gap: 6px; }
+  .howto-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .wrap { padding-inline: 16px; }
+  .topbar { position: static; }
+  .brand small { display: none; }
+  .tabs { width: 100%; }
+  .tab { flex: 1; padding: 8px 6px; }
+  .role-top { grid-template-columns: 1fr; }
+  .controls { justify-content: flex-start; }
+  .person { grid-template-columns: 36px minmax(0,1fr) auto; }
+  .person .money { grid-column: 2; grid-row: 2; justify-items: start; text-align: left; grid-auto-flow: column; gap: 10px; align-items: center; }
+  .person .swap-cell { grid-column: 3; grid-row: 1 / span 2; }
+  .alts { padding-left: 14px; }
+  .kpis { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .kpi:nth-child(2) { border-right: 0; }
+  .kpi:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .board { grid-template-columns: 1fr; }
+  .facts { grid-template-columns: 1fr; }
+  .fact:nth-child(odd) { border-right: 0; }
+  .fact { border-bottom: 1px solid var(--line); }
+  .fact:last-child { border-bottom: 0; }
+  .steps li { padding: 0 8px 0 0; }
+  .steps li + li::before { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <div class="wordmark">Off-Term <span>Studio</span></div>
+      <small>상명대학교 서울캠퍼스 · 방학 인하우스 프로덕션</small>
+    </div>
+    <span class="status" id="status" data-mode="checking"><i></i><span>AI 연결 확인 중</span></span>
+    <nav class="tabs" role="tablist" aria-label="화면">
+      <button class="tab" role="tab" id="tab-brief" aria-selected="true" data-tab="brief">발주 분석</button>
+      <button class="tab" role="tab" id="tab-board" aria-selected="false" data-tab="board">프로젝트 보드<span class="count" id="board-count"></span></button>
+      <button class="tab" role="tab" id="tab-crew" aria-selected="false" data-tab="crew">크루 풀</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- 발주 분석 -->
+  <section id="view-brief" class="wrap" role="tabpanel" aria-labelledby="tab-brief">
+    <div class="intro">
+      <div>
+        <h1>브리프 한 장으로 팀 구성과 견적까지</h1>
+        <p>AI PM이 발주 내용을 작업 단위로 쪼개고, 방학 중 비어 있는 학생 크루를 역할별로 배정합니다. 인원·공수·담당자는 사람이 조정하고 수락합니다.</p>
+      </div>
+      <ol class="steps" id="steps"></ol>
+    </div>
+
+    <div class="workspace">
+      <form class="panel brief" id="brief-form" autocomplete="off">
+        <div class="eyebrow">발주 브리프</div>
+        <div class="examples" id="examples" aria-label="예시 브리프"></div>
+        <label class="field" for="brief">브리프 <em>메일·기획서 내용을 그대로 붙여넣어도 됩니다</em>
+          <textarea id="brief" name="brief" maxlength="3000" required></textarea>
+        </label>
+        <div class="row2">
+          <label class="field" for="client">발주사 <em>선택</em>
+            <input type="text" id="client" name="client" maxlength="40" placeholder="예: 카페 누리">
+          </label>
+          <label class="field" for="weeks">희망 기간
+            <select id="weeks" name="weeks">
+              <option value="">AI 판단</option>
+              <option value="2">2주</option><option value="3">3주</option><option value="4">4주</option>
+              <option value="5">5주</option><option value="6">6주</option><option value="8">8주</option>
+            </select>
+          </label>
+        </div>
+        <label class="field" for="budget">예산
+          <select id="budget" name="budget">
+            <option value="">미정</option>
+            <option value="under100">100만 원 이하</option>
+            <option value="100-200">100~200만 원</option>
+            <option value="200-300">200~300만 원</option>
+            <option value="300-500">300~500만 원</option>
+            <option value="over500">500만 원 이상</option>
+          </select>
+        </label>
+        <p class="err" id="form-err" hidden></p>
+        <button class="btn primary big" type="submit" id="analyze-btn">브리프 분석하기</button>
+        <p class="hint" id="brief-hint">분석은 보통 20~40초 걸립니다.</p>
+      </form>
+
+      <div class="result" id="result" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- 프로젝트 보드 -->
+  <section id="view-board" class="wrap" role="tabpanel" aria-labelledby="tab-board" hidden>
+    <div class="intro">
+      <div>
+        <h1>프로젝트 보드</h1>
+        <p>수락한 작업지시서가 여기에 카드로 쌓입니다. 계약금·학생 페이는 작업지시서의 견적 산식 그대로입니다. 보드는 이 브라우저에만 저장됩니다.</p>
+      </div>
+      <button class="btn" type="button" id="reset-board">예시로 초기화</button>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <!-- 크루 풀 -->
+  <section id="view-crew" class="wrap" role="tabpanel" aria-labelledby="tab-crew" hidden>
+    <div class="intro">
+      <div>
+        <h1>크루 풀</h1>
+        <p>방학 참여를 신청한 학생 크루입니다. AI PM은 이 데이터(전공·스킬·포트폴리오·평점·주당 가능 시간·진행 중 배정)만 근거로 추천합니다. 아래 인물은 모두 가상 데이터입니다.</p>
+      </div>
+    </div>
+    <div class="crew-tools">
+      <input type="text" id="crew-q" placeholder="이름·전공·스킬 검색" aria-label="크루 검색">
+      <select id="crew-role" aria-label="역할 필터"></select>
+      <span class="hint" id="crew-count"></span>
+    </div>
+    <div class="crew-grid" id="crew-grid"></div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span>Off-Term Studio 데모 · 크루와 발주사는 모두 가상 예시입니다.</span>
+    <span>단가 구조: 학생 페이 60% · 직접원가 10% · 운영 마진 30%</span>
+  </div>
+</footer>
+
+<script src="shared/engine.js"></script>
+<script>
+(function () {
+  "use strict";
+  var E = window.OTS;
+
+  // ─── 상수 ─────────────────────────────────────────────────────────
+  var EXAMPLES = [
+    {
+      title: "카페 리브랜딩 패키지", sub: "로고·패키지·릴스·BGM · 200~300만 원",
+      client: "카페 누리", budget: "200-300", weeks: "5",
+      brief: "성수동에서 3년째 운영 중인 12평 스페셜티 카페입니다. 겨울 시즌에 맞춰 브랜드를 정리하고 싶습니다.\n\n1) 기존 로고를 다듬고 간단한 브랜드 가이드(컬러·서체) 정리\n2) 테이크아웃 컵 슬리브와 스티커 디자인 (인쇄소는 저희가 섭외)\n3) 인스타그램 릴스 15초 3편 — 매장 촬영 가능, 영업 전 오전 시간대\n4) 매장에서 틀 BGM 2곡 (저작권 걱정 없이 계속 쓸 수 있어야 함)\n\n1월 말 리뉴얼 오픈 예정이라 그 전에 받아야 합니다."
+    },
+    {
+      title: "인디게임 스팀 출시 준비", sub: "트레일러·키비주얼·사운드·현지화 · 300~500만 원",
+      client: "밤새 게임즈", budget: "300-500", weeks: "6",
+      brief: "3인 인디 팀이고, 2D 퍼즐 플랫포머를 3월에 스팀에 출시합니다.\n\n필요한 것\n- 스팀 상점용 60초 트레일러 (게임 플레이 녹화본은 저희가 제공, 편집·자막·모션 타이틀 필요)\n- 캐릭터가 들어간 키 비주얼 일러스트 1장 (캡슐 이미지 규격별로 재단)\n- 트레일러용 효과음과 짧은 테마곡\n- 상점 페이지 소개문 한국어 작성 + 일본어 번역\n\n아트 스타일 가이드는 공유 가능합니다. 음원은 상업적으로 영구 사용할 수 있어야 합니다."
+    },
+    {
+      title: "가전 신제품 펀딩 준비", sub: "3D 렌더·상세페이지·모션·랜딩 · 300~500만 원",
+      client: "한결테크", budget: "300-500", weeks: "4",
+      brief: "소형 가전을 만드는 중소 제조사입니다. 무선 탁상 가습기 신제품으로 와디즈 펀딩을 준비하고 있습니다.\n\n- 제품 3D 모델링 후 렌더 이미지 8컷 (CAD 파일 제공 가능, 컬러 3종)\n- 펀딩 상세페이지 카피와 구성안 (디자인은 3D 이미지 활용)\n- 30초 제품 소개 모션 영상 (세로형)\n- 펀딩 오픈 알림 신청을 받는 간단한 랜딩페이지\n\n시제품 촬영은 어렵고, 전부 3D로 해결하고 싶습니다. 오픈 목표는 4주 뒤입니다."
+    }
+  ];
+  var STATUSES = [
+    { id: "ready", label: "착수 대기" },
+    { id: "doing", label: "제작 중" },
+    { id: "review", label: "권리 대장·검수" },
+    { id: "done", label: "납품 완료" }
+  ];
+  var BUDGET = { "": null, under100: [0, 100], "100-200": [100, 200], "200-300": [200, 300], "300-500": [300, 500], over500: [500, Infinity] };
+  var BUDGET_LABEL = { "": "미정", under100: "100만 원 이하", "100-200": "100~200만 원", "200-300": "200~300만 원", "300-500": "300~500만 원", over500: "500만 원 이상" };
+  var TERM = "26W";
+  var BOARD_KEY = "ots.board.v1";
+
+  // ─── 유틸 ─────────────────────────────────────────────────────────
+  function $(s, el) { return (el || document).querySelector(s); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function won(n) { return Math.round(n).toLocaleString("ko-KR") + "원"; }
+  function man(n) { var v = n / 10000; return (Math.round(v * 10) / 10).toLocaleString("ko-KR") + "만 원"; }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function initial(name) { return name ? name.slice(1, 2) || name.slice(0, 1) : "?"; }
+  function store(k, v) {
+    try {
+      if (arguments.length === 1) { var raw = localStorage.getItem(k); return raw ? JSON.parse(raw) : null; }
+      localStorage.setItem(k, JSON.stringify(v));
+    } catch (e) { return null; }
+  }
+  function addDays(d, n) { var x = new Date(d); x.setDate(x.getDate() + n); return x; }
+  function ymd(d) { var x = new Date(d); return (x.getMonth() + 1) + "/" + x.getDate(); }
+
+  // ─── 상태 ─────────────────────────────────────────────────────────
+  var state = {
+    tab: "brief",
+    api: { mode: "checking", model: null },
+    phase: "idle", // idle | analyzing | matching | ready | accepted
+    runId: 0,
+    t0: 0,
+    project: null,
+    source: null,
+    notice: null,
+    teamNote: "",
+    swap: null,
+    acceptedCode: null,
+    example: 0,
+    board: [],
+    fresh: null,
+    confirmDelete: null
+  };
+
+  // ─── API ──────────────────────────────────────────────────────────
+  function api(path, body, timeoutMs) {
+    var ctl = new AbortController();
+    var timer = setTimeout(function () { ctl.abort(); }, timeoutMs || 58000);
+    return fetch(path, {
+      method: body ? "POST" : "GET",
+      headers: body ? { "content-type": "application/json" } : {},
+      body: body ? JSON.stringify(body) : undefined,
+      signal: ctl.signal
+    }).then(function (r) {
+      return r.text().then(function (text) {
+        var data = null;
+        try { data = JSON.parse(text); } catch (e) { /* HTML 등 */ }
+        if (!r.ok || !data) {
+          var msg = data && data.message ? data.message
+            : r.status === 429 ? "요청이 너무 잦습니다. 1분 뒤 다시 시도하세요."
+            : r.status === 404 ? "API가 배포되지 않았습니다."
+            : "서버 응답 오류(" + r.status + ")";
+          var err = new Error(msg); err.code = (data && data.error) || "http_" + r.status; throw err;
+        }
+        return data;
+      });
+    }).catch(function (e) {
+      if (e.name === "AbortError") { var x = new Error("AI 응답이 제한 시간 안에 오지 않았습니다."); x.code = "timeout"; throw x; }
+      if (!e.code) { e.code = "network"; e.message = "서버에 연결하지 못했습니다."; }
+      throw e;
+    }).finally(function () { clearTimeout(timer); });
+  }
+
+  var healthReady = null;
+  function checkHealth() {
+    if (location.protocol === "file:") { setMode("offline"); healthReady = Promise.resolve(); return; }
+    healthReady = api("/api/health", null, 6000).then(function (d) {
+      setMode(d.ai ? "ai" : "nokey", d.model, d.provider);
+    }).catch(function () { setMode("offline"); });
+  }
+  function setMode(mode, model, provider) {
+    state.api = { mode: mode, model: model || null, provider: provider || null };
+    var el = $("#status");
+    el.dataset.mode = mode;
+    el.lastElementChild.textContent =
+      mode === "ai" ? "AI PM 연결됨 · " + model :
+      mode === "nokey" ? "AI 키 미설정 · 규칙 기반 모드" :
+      mode === "offline" ? "API 없음 · 규칙 기반 모드" : "AI 연결 확인 중";
+    $("#brief-hint").textContent = mode === "ai"
+      ? (provider === "gemini"
+        ? "분석은 보통 20~40초 걸립니다. 브리프는 Off-Term Studio에 저장되지 않지만 Google Gemini 무료 티어로 전송되며, 무료 티어 입력은 Google 서비스 개선에 쓰일 수 있습니다. 기밀 자료는 넣지 마세요."
+        : "분석은 보통 20~40초 걸립니다. 브리프는 Off-Term Studio에 저장되지 않고 분석을 위해 Anthropic Claude API로만 전송됩니다.")
+      : "지금은 AI 없이 키워드 규칙으로 분해합니다. AI 결과와 구분되도록 결과에 표시됩니다.";
+  }
+
+  // ─── 보드 저장 ────────────────────────────────────────────────────
+  function seedBoard() {
+    function card(code, status, title, client, weeks, daysAgo, roles, source) {
+      var project = { weeks: weeks, roles: roles.map(function (r, i) { return { key: "r" + (i + 1), roleId: r[0], count: r[2].length, hours: r[1], assigned: r[2].map(function (id) { return { id: id }; }) }; }) };
+      var q = E.quote(project.roles);
+      var created = addDays(new Date(), -daysAgo);
+      return {
+        code: code, status: status, title: title, client: client, weeks: weeks, example: true, source: source,
+        createdAt: created.toISOString(), due: addDays(created, weeks * 7).toISOString(),
+        contract: q.contract, pay: q.pay, hours: q.hours,
+        team: q.lines.reduce(function (arr, l) { l.people.forEach(function (p) { if (p.id) arr.push({ id: p.id, name: p.name, role: l.label }); }); return arr; }, [])
+      };
+    }
+    return [
+      card("OTS-26W-001", "doing", "문구 브랜드 캐릭터 굿즈 일러스트", "오롯문구", 4, 9, [["pm", 8, ["C04"]], ["illust", 30, ["C16"]], ["brand", 14, ["C13"]], ["rights", 5, ["C06"]]], "ai"),
+      card("OTS-26W-002", "review", "로컬마켓 팝업 부스 연출", "망원 수공방", 3, 20, [["pm", 10, ["C02"]], ["space", 24, ["C52"]], ["brand", 10, ["C14"]], ["rights", 4, ["C09"]]], "ai"),
+      card("OTS-25S-014", "done", "동아리 연합 축제 스팟 영상", "상명 동아리연합회", 3, 70, [["pm", 8, ["C03"]], ["motion", 28, ["C19"]], ["sound", 12, ["C41"]], ["rights", 4, ["C08"]]], "rule")
+    ];
+  }
+  function loadBoard() {
+    var b = store(BOARD_KEY);
+    state.board = Array.isArray(b) ? b : seedBoard();
+  }
+  function saveBoard() { store(BOARD_KEY, state.board); }
+  function busyIds() {
+    var ids = [];
+    state.board.forEach(function (c) { if (c.status !== "done") c.team.forEach(function (t) { if (ids.indexOf(t.id) < 0) ids.push(t.id); }); });
+    return ids;
+  }
+  function nextCode() {
+    var max = 0;
+    state.board.forEach(function (c) { var m = /^OTS-26W-(\d+)$/.exec(c.code); if (m) max = Math.max(max, Number(m[1])); });
+    return "OTS-" + TERM + "-" + String(max + 1).padStart(3, "0");
+  }
+
+  // ─── 분석 흐름 ────────────────────────────────────────────────────
+  function readForm() {
+    return {
+      brief: $("#brief").value.trim(),
+      client: $("#client").value.trim(),
+      budget: $("#budget").value,
+      weeks: $("#weeks").value
+    };
+  }
+
+  function runAnalysis(forceRule) {
+    if (state.api.mode === "checking" && healthReady) {
+      $("#analyze-btn").disabled = true;
+      healthReady.then(function () { runAnalysis(forceRule); });
+      return;
+    }
+    var input = readForm();
+    var errEl = $("#form-err");
+    if (input.brief.length < 10) { errEl.textContent = "브리프를 10자 이상 입력하세요."; errEl.hidden = false; $("#brief").focus(); return; }
+    errEl.hidden = true;
+
+    var run = ++state.runId;
+    var useAI = !forceRule && state.api.mode === "ai";
+    state.phase = "analyzing"; state.project = null; state.notice = null; state.swap = null; state.teamNote = ""; state.acceptedCode = null;
+    state.source = { analyze: null, match: null, model: state.api.model };
+    state.t0 = Date.now();
+    render();
+    if (window.innerWidth < 900) $("#result").scrollIntoView({ behavior: "smooth", block: "start" });
+    if (!useAI && !forceRule && state.api.mode !== "ai") {
+      state.notice = { kind: "info", text: state.api.mode === "nokey" ? "서버에 AI 키가 설정되지 않아 키워드 규칙으로 분해했습니다." : "API에 연결할 수 없어 키워드 규칙으로 분해했습니다(로컬 파일 또는 정적 호스팅)." };
+    }
+
+    var p = useAI
+      ? api("/api/analyze", input).then(function (d) { state.source.analyze = "ai"; state.source.model = d.meta.model; state.source.ms = d.meta.ms; return d.project; })
+        .catch(function (e) { state.notice = { kind: "warn", text: "AI 분해 실패 — " + e.message + " 규칙 기반 결과를 대신 보여줍니다.", retry: true }; return null; })
+      : sleep(500).then(function () { return null; });
+
+    p.then(function (project) {
+      if (run !== state.runId) return;
+      if (!project) { project = E.ruleBreakdown(input); state.source.analyze = "rule"; }
+      project.client = input.client;
+      project.budget = input.budget;
+      project.roles.forEach(function (r) { r.assigned = []; });
+      state.project = project;
+      state.phase = "matching";
+      render();
+
+      var busy = busyIds();
+      var m = state.source.analyze === "ai"
+        ? api("/api/match", { project: slim(project), busy: busy }).then(function (d) { state.source.match = "ai"; state.source.ms2 = d.meta.ms; state.teamNote = d.teamNote || ""; return d.assignments; })
+          .catch(function (e) { state.notice = { kind: "warn", text: "AI 매칭 실패 — " + e.message + " 규칙 점수 순으로 배정했습니다.", retry: true }; return null; })
+        : sleep(400).then(function () { return null; });
+
+      return m.then(function (assignments) {
+        if (run !== state.runId) return;
+        if (!assignments) { assignments = E.ruleMatch(project, { busy: busy }); state.source.match = "rule"; }
+        project.roles.forEach(function (r) { r.assigned = (assignments[r.key] || []).slice(0, r.count); fillRole(r); });
+        state.phase = "ready";
+        render();
+      });
+    });
+  }
+
+  function slim(project) {
+    return {
+      title: project.title, summary: project.summary, weeks: project.weeks,
+      roles: project.roles.map(function (r) { return { key: r.key, roleId: r.roleId, count: r.count, hours: r.hours, focus: r.focus, skills: r.skills }; })
+    };
+  }
+  function usedIds(except) {
+    var ids = [];
+    state.project.roles.forEach(function (r) { r.assigned.forEach(function (a, i) { if (!(except && except.key === r.key && except.idx === i)) ids.push(a.id); }); });
+    return ids;
+  }
+  function ctx() { return { weeks: state.project.weeks, busy: busyIds() }; }
+  function fillRole(role) {
+    var used = usedIds();
+    var ranked = E.rankCandidates(role, ctx(), 30);
+    for (var i = 0; i < ranked.length && role.assigned.length < role.count; i++) {
+      if (used.indexOf(ranked[i].id) >= 0) continue;
+      role.assigned.push({ id: ranked[i].id, reason: E.ruleReason(ranked[i]), source: "rule" });
+      used.push(ranked[i].id);
+    }
+  }
+
+  // ─── 조정 ─────────────────────────────────────────────────────────
+  function roleByKey(key) { return state.project.roles.filter(function (r) { return r.key === key; })[0]; }
+  function onResultClick(e) {
+    var t = e.target.closest("[data-act]");
+    if (!t || !state.project && t.dataset.act !== "retry-ai") return;
+    var act = t.dataset.act, key = t.dataset.key, role = key && roleByKey(key);
+    if (act === "count" && role) {
+      var max = role.roleId === "pm" || role.roleId === "rights" ? 2 : 4;
+      role.count = Math.max(1, Math.min(max, role.count + Number(t.dataset.d)));
+      if (role.assigned.length > role.count) role.assigned = role.assigned.slice(0, role.count);
+      fillRole(role);
+      state.swap = null;
+    } else if (act === "hours" && role) {
+      role.hours = Math.max(2, Math.min(160, role.hours + Number(t.dataset.d)));
+      refreshReasons(role);
+    } else if (act === "remove" && role) {
+      state.project.roles = state.project.roles.filter(function (r) { return r !== role; });
+      state.swap = null;
+    } else if (act === "swap" && role) {
+      var idx = Number(t.dataset.idx);
+      state.swap = state.swap && state.swap.key === key && state.swap.idx === idx ? null : { key: key, idx: idx };
+    } else if (act === "pick" && role) {
+      var i = Number(t.dataset.idx);
+      var sc = E.scoreStudent(E.STUDENT_MAP[t.dataset.id], role, ctx());
+      role.assigned[i] = { id: t.dataset.id, reason: "담당자가 직접 교체 · " + E.ruleReason(sc), source: "human" };
+      state.swap = null;
+    } else if (act === "accept") {
+      accept(); return;
+    } else if (act === "retry-ai") {
+      runAnalysis(false); return;
+    } else if (act === "rule") {
+      runAnalysis(true); return;
+    } else if (act === "new") {
+      state.phase = "idle"; state.project = null; state.notice = null; state.acceptedCode = null;
+      $("#brief").focus();
+    } else if (act === "goto-board") {
+      setTab("board"); return;
+    } else return;
+    render();
+  }
+  function onResultChange(e) {
+    var t = e.target;
+    if (!state.project) return;
+    if (t.matches("[data-hours]")) {
+      var role = roleByKey(t.dataset.hours);
+      role.hours = Math.max(2, Math.min(160, Math.round(Number(t.value) || role.hours)));
+      refreshReasons(role);
+      render();
+    } else if (t.id === "order-weeks") {
+      state.project.weeks = Number(t.value);
+      state.project.roles.forEach(refreshReasons);
+      render();
+    } else if (t.id === "add-role" && t.value) {
+      var def = E.ROLE_MAP[t.value];
+      var n = state.project.roles.reduce(function (m, r) { return Math.max(m, Number(r.key.slice(1)) || 0); }, 0) + 1;
+      var role2 = { key: "r" + n, roleId: def.id, count: 1, hours: 16, focus: def.deliverable, skills: [], assigned: [] };
+      var rightsIdx = state.project.roles.findIndex(function (r) { return r.roleId === "rights"; });
+      if (rightsIdx >= 0) state.project.roles.splice(rightsIdx, 0, role2); else state.project.roles.push(role2);
+      fillRole(role2);
+      render();
+    }
+  }
+  // 공수·기간이 바뀌면 규칙 기반 이유(가능시간 경고 등)만 갱신. AI 이유는 그대로 둔다.
+  function refreshReasons(role) {
+    role.assigned.forEach(function (a) {
+      if (a.source !== "rule") return;
+      a.reason = E.ruleReason(E.scoreStudent(E.STUDENT_MAP[a.id], role, ctx()));
+    });
+  }
+
+  function accept() {
+    var p = state.project;
+    var q = E.quote(p.roles);
+    var code = nextCode();
+    var now = new Date();
+    var team = [];
+    q.lines.forEach(function (l) { l.people.forEach(function (x) { if (x.id) team.push({ id: x.id, name: x.name, role: l.label }); }); });
+    state.board.unshift({
+      code: code, status: "ready", title: p.title, client: p.client || "발주사 미기재", weeks: p.weeks,
+      createdAt: now.toISOString(), due: addDays(now, p.weeks * 7).toISOString(),
+      contract: q.contract, pay: q.pay, hours: q.hours, team: team,
+      source: state.source.analyze === "ai" ? "ai" : "rule", example: false
+    });
+    saveBoard();
+    state.acceptedCode = code;
+    state.fresh = code;
+    state.phase = "accepted";
+    render();
+  }
+
+  // ─── 렌더: 발주 분석 ───────────────────────────────────────────────
+  function renderSteps() {
+    var ph = state.phase;
+    var order = { idle: 0, analyzing: 1, matching: 2, ready: 3, accepted: 5 };
+    var cur = order[ph];
+    var steps = ["브리프", "작업 분해", "팀 구성", "조정", "수락"];
+    $("#steps").innerHTML = steps.map(function (s, i) {
+      var st = i < cur ? "done" : i === cur ? "active" : "todo";
+      if (ph === "idle" && i === 0) st = "active";
+      return '<li data-s="' + st + '"><b>' + (i + 1) + "</b>" + s + "</li>";
+    }).join("");
+  }
+
+  function renderResult() {
+    var el = $("#result");
+    var html = "";
+    if (state.notice) {
+      html += '<div class="notice" data-kind="' + state.notice.kind + '"><span>' + esc(state.notice.text) + "</span>" +
+        (state.notice.retry && state.api.mode === "ai" && state.phase !== "analyzing" && state.phase !== "matching" ? '<button class="btn" type="button" data-act="retry-ai">AI로 다시 시도</button>' : "") + "</div>";
+    }
+    if (state.phase === "idle") {
+      html += howto();
+    } else if (state.phase === "analyzing") {
+      html += progress(1);
+    } else {
+      if (state.phase === "matching") html += progress(2);
+      html += order();
+    }
+    el.innerHTML = html;
+  }
+
+  function howto() {
+    return '<section class="panel howto">' +
+      '<div class="eyebrow">작업지시서가 이렇게 나옵니다</div>' +
+      "<h2>AI가 제안하고, 근거를 보여주고, 사람이 결정합니다</h2>" +
+      '<div class="howto-grid">' +
+      "<div><strong>분해 근거</strong><p>브리프에서 역할·인원·1인 공수·교내 장비를 뽑고, 모호한 점은 발주사에게 물을 질문으로 남깁니다.</p></div>" +
+      "<div><strong>선정 이유</strong><p>크루마다 왜 골랐는지 전공·스킬·평점·가능 시간 데이터에 근거한 이유를 붙입니다. 마음에 안 들면 바로 교체합니다.</p></div>" +
+      "<div><strong>견적 산식</strong><p>블랙박스 금액 대신 역할별 산식이 보입니다. 인원이나 공수를 바꾸면 계약금이 즉시 다시 계산됩니다.</p></div>" +
+      "</div>" +
+      '<div class="formula">Σ(인원 × 1인 공수 × 크루 시급) = 학생 페이 → 학생 페이 ÷ 60% = 계약금 (만 원 단위 올림)</div>' +
+      '<p class="hint">왼쪽 예시 브리프 중 하나를 고르고 “브리프 분석하기”를 눌러 보세요.</p>' +
+      "</section>";
+  }
+
+  function progress(step) {
+    var sec = '<span class="num" data-elapsed>' + Math.floor((Date.now() - state.t0) / 1000) + "</span>초";
+    var items = [
+      ["브리프를 작업 단위로 분해", step > 1 ? "done" : "active"],
+      ["역할별 크루 후보 선별 · 선정 이유 작성", step === 2 ? "active" : "todo"],
+      ["견적 산식 계산", "todo"]
+    ];
+    return '<section class="panel progress"><div class="eyebrow">' + (state.api.mode === "ai" && state.source && state.source.analyze !== "rule" ? "AI PM 작업 중 · " : "규칙 엔진 작업 중 · ") + sec + "</div><ol>" +
+      items.map(function (it) { return '<li data-s="' + it[1] + '"><span class="spin"></span>' + it[0] + "</li>"; }).join("") +
+      "</ol></section>";
+  }
+
+  function sourceBadge(kind, extra) {
+    if (kind === "ai") return '<span class="badge ai">AI' + (extra ? " · " + esc(extra) : "") + "</span>";
+    if (kind === "human") return '<span class="badge human">직접</span>';
+    return '<span class="badge rule">규칙' + (extra ? " · " + esc(extra) : "") + "</span>";
+  }
+
+  function order() {
+    var p = state.project, src = state.source, ready = state.phase === "ready" || state.phase === "accepted";
+    var q = E.quote(p.roles);
+    var locked = state.phase === "accepted";
+    var used = usedIds();
+
+    var head = '<div class="order-head">' +
+      '<div class="order-meta"><span class="code">' + esc(state.acceptedCode || "OTS-" + TERM + "-신규") + "</span>" +
+      "<span>작업 분해 " + sourceBadge(src.analyze, src.analyze === "ai" ? src.model + (src.ms ? " · " + (src.ms / 1000).toFixed(1) + "초" : "") : "AI 미사용") + "</span>" +
+      (src.match ? "<span>팀 구성 " + sourceBadge(src.match, src.match === "ai" ? (src.ms2 ? (src.ms2 / 1000).toFixed(1) + "초" : "") : "점수순") + "</span>" : "") +
+      (p.client ? "<span>발주사 <b>" + esc(p.client) + "</b></span>" : "") +
+      "</div>" +
+      "<h2>" + esc(p.title) + "</h2>" +
+      (p.summary ? '<p class="summary">' + esc(p.summary) + "</p>" : "") +
+      "</div>";
+
+    var weeksSel = '<select id="order-weeks" aria-label="기간(주)"' + (locked ? " disabled" : "") + ">" +
+      [1, 2, 3, 4, 5, 6, 7, 8, 10, 12].map(function (w) { return '<option value="' + w + '"' + (w === p.weeks ? " selected" : "") + ">" + w + "주</option>"; }).join("") + "</select>";
+
+    var facts = '<div class="facts">' +
+      '<div class="fact"><h3>기간·납품물</h3><span class="weeks">' + weeksSel + '<span class="hint">방학 중 착수 기준</span></span>' +
+      (p.deliverables.length ? "<ul>" + p.deliverables.map(function (d) { return "<li>" + esc(d) + "</li>"; }).join("") + "</ul>" : "") + "</div>" +
+      '<div class="fact"><h3>교내 장비</h3>' + (p.equipment.length
+        ? '<div class="chips">' + p.equipment.map(function (id) { return '<span class="chip on">' + esc(E.EQUIPMENT_MAP[id].label) + "</span>"; }).join("") + '</div><p class="hint">공간 협약 후 예약제로 사용</p>'
+        : '<p class="hint">교내 장비 없이 재택 수행 가능</p>') + "</div>" +
+      '<div class="fact"><h3>리스크</h3>' + (p.risks.length ? "<ul>" + p.risks.map(function (d) { return "<li>" + esc(d) + "</li>"; }).join("") + "</ul>" : '<p class="hint">특이사항 없음</p>') + "</div>" +
+      '<div class="fact"><h3>발주사에게 확인할 것</h3>' + (p.questions.length ? "<ul>" + p.questions.map(function (d) { return "<li>" + esc(d) + "</li>"; }).join("") + "</ul>" : '<p class="hint">없음</p>') + "</div>" +
+      "</div>";
+
+    var roles = p.roles.map(function (role) {
+      var def = E.ROLE_MAP[role.roleId];
+      var line = q.lines.filter(function (l) { return l.key === role.key; })[0];
+      var mandatory = role.roleId === "pm" || role.roleId === "rights";
+      var maxCount = mandatory ? 2 : 4;
+      var people = line.people.map(function (person, idx) {
+        var a = role.assigned[idx];
+        var s = person.id && E.STUDENT_MAP[person.id];
+        var row;
+        if (s) {
+          var sc = E.scoreStudent(s, role, ctx());
+          row = '<li class="person"><div class="avatar" aria-hidden="true">' + esc(initial(s.name)) + "</div>" +
+            '<div class="who"><div class="name">' + esc(s.name) + "<small>" + esc(s.major) + " " + s.year + "학년 · " + (s.rating ? "평점 " + s.rating : "신규") + " · 주 " + s.weeklyHours + "h" + (sc && !sc.fits ? " · 가능시간 부족" : "") + "</small></div>" +
+            '<div class="reason">' + (ready ? sourceBadge(a.source) : "") + "<span>" + esc(a.reason) + "</span></div></div>" +
+            '<div class="money"><span class="num">' + won(person.subtotal) + "</span><small>" + person.rate.toLocaleString("ko-KR") + "원 × " + role.hours + "h</small></div>" +
+            '<div class="swap-cell">' + (ready && !locked ? '<button class="btn ghost" type="button" data-act="swap" data-key="' + role.key + '" data-idx="' + idx + '" aria-expanded="' + !!(state.swap && state.swap.key === role.key && state.swap.idx === idx) + '">교체</button>' : "") + "</div>" +
+            "</li>";
+        } else {
+          row = '<li class="person"><div class="avatar empty" aria-hidden="true">?</div><div class="who"><div class="name">' + (state.phase === "matching" ? "매칭 중…" : "미배정") +
+            "<small>" + (state.phase === "matching" ? "후보 검토 중" : "조건에 맞는 크루 없음 · 기준시급으로 계산") + '</small></div></div><div class="money"><span class="num">' + won(person.subtotal) + "</span><small>" + person.rate.toLocaleString("ko-KR") + "원 × " + role.hours + "h</small></div><div class=\"swap-cell\"></div></li>";
+        }
+        if (state.swap && state.swap.key === role.key && state.swap.idx === idx && !locked) {
+          var except = usedIds({ key: role.key, idx: idx });
+          var alts = E.rankCandidates(role, ctx(), 30).filter(function (c) { return except.indexOf(c.id) < 0 && c.id !== person.id; }).slice(0, 5);
+          row += '<li class="alts"><p>교체 후보 — 규칙 점수순 (전공 30 · 스킬 · 포트폴리오 8 · 평점 · 가능시간 ±, 진행 중 배정 −25)</p>' +
+            (alts.length ? alts.map(function (c) {
+              var st = E.STUDENT_MAP[c.id];
+              return '<button type="button" class="alt" data-act="pick" data-key="' + role.key + '" data-idx="' + idx + '" data-id="' + st.id + '"><span><strong>' + esc(st.name) + "</strong> <span>" + esc(E.ruleReason(c)) + " · " + st.rate.toLocaleString("ko-KR") + '원</span></span><span class="score">' + c.score + "점</span></button>";
+            }).join("") : '<p>다른 후보가 없습니다.</p>') + "</li>";
+        }
+        return row;
+      }).join("");
+
+      return '<article class="role">' +
+        '<div class="role-top"><div><h4>' + esc(def.label) + (mandatory ? '<span class="badge rule">필수</span>' : "") + "</h4>" +
+        "<p>" + esc(role.focus || def.deliverable) + "</p>" +
+        (role.skills.length ? '<div class="chips">' + role.skills.map(function (s) { return '<span class="chip">' + esc(s) + "</span>"; }).join("") + "</div>" : "") +
+        "</div>" +
+        '<div class="controls">' +
+        '<span class="ctl-label"><span class="stepper"><button type="button" data-act="count" data-key="' + role.key + '" data-d="-1" aria-label="인원 줄이기"' + (role.count <= 1 || !ready || locked ? " disabled" : "") + '>−</button><output class="num">' + role.count + '명</output><button type="button" data-act="count" data-key="' + role.key + '" data-d="1" aria-label="인원 늘리기"' + (role.count >= maxCount || !ready || locked ? " disabled" : "") + ">+</button></span>인원</span>" +
+        '<span class="ctl-label"><span class="stepper"><button type="button" data-act="hours" data-key="' + role.key + '" data-d="-2" aria-label="공수 줄이기"' + (role.hours <= 2 || !ready || locked ? " disabled" : "") + '>−</button><input class="num" type="number" min="2" max="160" id="hours-' + role.key + '" data-hours="' + role.key + '" value="' + role.hours + '" aria-label="' + esc(def.label) + ' 1인 공수(시간)"' + (!ready || locked ? " disabled" : "") + '><button type="button" data-act="hours" data-key="' + role.key + '" data-d="2" aria-label="공수 늘리기"' + (role.hours >= 160 || !ready || locked ? " disabled" : "") + ">+</button></span>1인 공수(h)</span>" +
+        (mandatory || locked ? "" : '<button class="btn ghost" type="button" data-act="remove" data-key="' + role.key + '"' + (!ready ? " disabled" : "") + ">역할 삭제</button>") +
+        "</div></div>" +
+        '<ul class="people">' + people + "</ul>" +
+        '<div class="role-foot"><span>' + role.count + "명 × " + role.hours + "h = " + role.count * role.hours + 'h</span><span>소계 <b class="num">' + won(line.subtotal) + "</b></span></div>" +
+        "</article>";
+    }).join("");
+
+    var missing = E.ROLES.filter(function (r) { return !p.roles.some(function (x) { return x.roleId === r.id; }); });
+    var addRole = ready && !locked && missing.length
+      ? '<div class="add-role"><select id="add-role" aria-label="역할 추가"><option value="">+ 역할 추가</option>' + missing.map(function (r) { return '<option value="' + r.id + '">' + esc(r.label) + "</option>"; }).join("") + "</select></div>"
+      : "";
+
+    var team = '<div class="team"><div class="team-head"><h3>역할·팀 구성 <span class="hint">' + q.people + "명 · 총 " + q.hours + "시간</span></h3>" + addRole + "</div>" +
+      (state.teamNote ? '<p class="teamnote"><b>AI PM 메모</b> · ' + esc(state.teamNote) + "</p>" : "") +
+      roles + "</div>";
+
+    // 견적
+    var rows = q.lines.map(function (l) {
+      var rates = l.people.map(function (x) { return x.rate; });
+      var uniqRates = rates.filter(function (v, i) { return rates.indexOf(v) === i; }).map(function (v) { return v.toLocaleString("ko-KR"); });
+      return "<tr><td>" + esc(l.label) + '</td><td class="calc">' + l.count + "명 × " + l.hours + "h × " + uniqRates.join("·") + '원</td><td class="amt num">' + won(l.subtotal) + "</td></tr>";
+    }).join("");
+    var band = BUDGET[p.budget || ""];
+    var budgetCheck = "";
+    if (band) {
+      var cm = q.contract / 10000;
+      var ok = cm <= band[1];
+      budgetCheck = '<p class="budget-check" data-ok="' + ok + '">예산 ' + BUDGET_LABEL[p.budget] + " 대비 " +
+        (ok ? (cm < band[0] ? "하한보다 " + man(q.contract - band[0] * 10000).replace("-", "") + " 낮음 — 범위를 넓힐 여지가 있음" : "범위 안") : man(q.contract - band[1] * 10000) + " 초과 — 인원·공수를 줄여 보세요") + "</p>";
+    }
+    var quote = '<div class="quote"><div class="eyebrow">견적 근거</div><div class="quote-grid">' +
+      '<div class="qtable-wrap"><table class="qtable"><thead><tr><th>역할</th><th>산식 (인원 × 1인 공수 × 시급)</th><th class="amt">학생 페이</th></tr></thead><tbody>' + rows +
+      '</tbody><tfoot><tr><td colspan="2">학생 페이 합계</td><td class="amt num">' + won(q.pay) + "</td></tr></tfoot></table></div>" +
+      '<div style="display:grid;gap:10px"><div class="totals">' +
+      '<div class="contract"><span class="label">계약금<small>학생 페이 ÷ 60%, 만 원 올림</small></span><span class="num">' + won(q.contract) + "</span></div>" +
+      '<div><span class="label">학생 페이<small>계약금의 ' + (q.contract ? Math.round(q.pay / q.contract * 1000) / 10 : 0) + '%</small></span><span class="num">' + won(q.pay) + "</span></div>" +
+      '<div><span class="label">직접원가<small>상용 라이선스·건별 감수 10%</small></span><span class="num">' + won(q.direct) + "</span></div>" +
+      '<div><span class="label">운영 마진<small>계약금의 ' + (q.contract ? Math.round(q.margin / q.contract * 1000) / 10 : 0) + '%</small></span><span class="num">' + won(q.margin) + "</span></div>" +
+      "</div>" + budgetCheck + "</div></div></div>";
+
+    var acceptBar = "";
+    if (state.phase === "ready") {
+      acceptBar = '<div class="accept"><p>수락하면 이 구성 그대로 프로젝트 보드에 카드가 생기고, 배정된 크루는 다른 분석에서 “진행 중”으로 감점됩니다.</p><div class="btns">' +
+        (src.analyze === "rule" && state.api.mode === "ai" ? '<button class="btn" type="button" data-act="retry-ai">AI로 다시 분석</button>' : '<button class="btn" type="button" data-act="rule">규칙 기반으로 비교</button>') +
+        '<button class="btn primary" type="button" data-act="accept">수락하고 보드에 올리기</button></div></div>';
+    } else if (state.phase === "accepted") {
+      acceptBar = '<div class="accept"><p><b>' + esc(state.acceptedCode) + "</b> 카드가 보드의 “착수 대기”에 올라갔습니다.</p><div class=\"btns\">" +
+        '<button class="btn" type="button" data-act="new">새 브리프</button><button class="btn primary" type="button" data-act="goto-board">보드에서 보기</button></div></div>';
+    }
+
+    return '<section class="panel order">' + head + facts + team + quote + acceptBar + "</section>";
+  }
+
+  // ─── 렌더: 보드 ───────────────────────────────────────────────────
+  function renderBoard() {
+    var b = state.board;
+    var active = b.filter(function (c) { return c.status !== "done"; });
+    var crew = {};
+    b.forEach(function (c) { c.team.forEach(function (t) { crew[t.id] = 1; }); });
+    var total = b.reduce(function (n, c) { return n + c.contract; }, 0);
+    var pay = b.reduce(function (n, c) { return n + c.pay; }, 0);
+    $("#kpis").innerHTML =
+      '<div class="kpi"><span>진행 중</span><strong>' + active.length + "건</strong></div>" +
+      '<div class="kpi"><span>누적 거래액</span><strong>' + man(total) + "</strong></div>" +
+      '<div class="kpi"><span>학생 페이 합계</span><strong>' + man(pay) + "</strong></div>" +
+      '<div class="kpi"><span>참여 크루</span><strong>' + Object.keys(crew).length + "명</strong></div>";
+    $("#board-count").textContent = active.length || "";
+
+    $("#board").innerHTML = STATUSES.map(function (st, si) {
+      var cards = b.filter(function (c) { return c.status === st.id; });
+      return '<section class="col" aria-label="' + st.label + '"><div class="col-head"><h3>' + st.label + '</h3><span class="num">' + cards.length + "</span></div>" +
+        (cards.length ? cards.map(function (c) {
+          var confirming = state.confirmDelete === c.code;
+          return '<article class="card' + (state.fresh === c.code ? " fresh" : "") + '" id="card-' + esc(c.code) + '">' +
+            '<div class="card-top"><span class="code">' + esc(c.code) + "</span>" + (c.example ? '<span class="badge example">예시</span>' : sourceBadge(c.source === "ai" ? "ai" : "rule", c.source === "ai" ? "" : "")) + "</div>" +
+            "<div><h4>" + esc(c.title) + '</h4><p class="client">' + esc(c.client) + " · " + c.weeks + "주 · 납기 " + ymd(c.due) + "</p></div>" +
+            '<div class="crew-line">' + c.team.map(function (t) { return "<span>" + esc(t.name) + " <em>" + esc(t.role.split("·")[0]) + "</em></span>"; }).join("") + "</div>" +
+            '<div class="figures"><span>계약금 <strong>' + man(c.contract) + "</strong></span><span>학생 페이 <strong>" + man(c.pay) + "</strong></span></div>" +
+            '<div class="card-actions">' +
+            '<button class="btn" type="button" data-move="' + esc(c.code) + '" data-d="-1"' + (si === 0 ? " disabled" : "") + ' aria-label="이전 단계로">←</button>' +
+            (confirming ? '<button class="btn" type="button" data-del="' + esc(c.code) + '" style="color:var(--bad)">삭제 확인</button>' : '<button class="btn ghost" type="button" data-askdel="' + esc(c.code) + '">삭제</button>') +
+            '<button class="btn" type="button" data-move="' + esc(c.code) + '" data-d="1"' + (si === STATUSES.length - 1 ? " disabled" : "") + ' aria-label="다음 단계로">→</button>' +
+            "</div></article>";
+        }).join("") : '<p class="col-empty">카드 없음</p>') + "</section>";
+    }).join("");
+  }
+  function onBoardClick(e) {
+    var t = e.target.closest("button");
+    if (!t) return;
+    var code = t.dataset.move || t.dataset.del || t.dataset.askdel;
+    var card = state.board.filter(function (c) { return c.code === code; })[0];
+    if (!card) return;
+    if (t.dataset.move) {
+      var idx = STATUSES.findIndex(function (s) { return s.id === card.status; });
+      card.status = STATUSES[Math.max(0, Math.min(STATUSES.length - 1, idx + Number(t.dataset.d)))].id;
+      state.confirmDelete = null;
+    } else if (t.dataset.askdel) {
+      state.confirmDelete = code;
+    } else if (t.dataset.del) {
+      state.board = state.board.filter(function (c) { return c !== card; });
+      state.confirmDelete = null;
+    }
+    saveBoard();
+    renderBoard();
+    renderCrew();
+  }
+
+  // ─── 렌더: 크루 ───────────────────────────────────────────────────
+  function renderCrew() {
+    var q = ($("#crew-q").value || "").trim().toLowerCase();
+    var roleId = $("#crew-role").value;
+    var busy = busyIds();
+    var list = E.STUDENTS.filter(function (s) {
+      if (q && (s.name + s.major + s.skills.join(" ")).toLowerCase().indexOf(q) < 0) return false;
+      if (roleId) { var sc = E.scoreStudent(s, { roleId: roleId, hours: 0 }, {}); if (!sc.eligible) return false; }
+      return true;
+    });
+    $("#crew-count").textContent = list.length + "명 / 전체 " + E.STUDENTS.length + "명";
+    $("#crew-grid").innerHTML = list.map(function (s) {
+      var isBusy = busy.indexOf(s.id) >= 0;
+      return '<article class="crew"><div class="crew-top"><div class="avatar" aria-hidden="true">' + esc(initial(s.name)) + '</div><div class="who"><div class="name">' + esc(s.name) + ' <small class="num">' + s.id + "</small></div><small class=\"hint\">" + esc(s.major) + " " + s.year + "학년</small></div></div>" +
+        '<div class="chips">' + (isBusy ? '<span class="badge ai">진행 중 배정</span>' : "") + (s.rating ? '<span class="badge human">평점 ' + s.rating + " · " + s.projects + "건</span>" : '<span class="badge rule">신규 크루</span>') + (s.portfolio ? '<span class="badge rule">포트폴리오</span>' : "") + "</div>" +
+        '<div class="chips">' + s.skills.map(function (k) { return '<span class="chip">' + esc(k) + "</span>"; }).join("") + "</div>" +
+        '<div class="stats"><span>시급 <b class="num">' + s.rate.toLocaleString("ko-KR") + "원</b></span><span>주 <b class=\"num\">" + s.weeklyHours + "h</b> 가능</span></div></article>";
+    }).join("");
+  }
+
+  // ─── 탭 · 예시 · 이벤트 ────────────────────────────────────────────
+  function setTab(tab) {
+    state.tab = tab;
+    ["brief", "board", "crew"].forEach(function (t) {
+      $("#view-" + t).hidden = t !== tab;
+      $("#tab-" + t).setAttribute("aria-selected", String(t === tab));
+    });
+    if (tab === "board") {
+      renderBoard();
+      if (state.fresh) {
+        var el = document.getElementById("card-" + state.fresh);
+        if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
+        setTimeout(function () { state.fresh = null; }, 100);
+      }
+    }
+    if (tab === "crew") renderCrew();
+    window.scrollTo({ top: 0 });
+  }
+
+  function renderExamples() {
+    $("#examples").innerHTML = EXAMPLES.map(function (ex, i) {
+      return '<button type="button" class="example" data-ex="' + i + '" aria-pressed="' + (state.example === i) + '"><strong>' + esc(ex.title) + "</strong><span>" + esc(ex.sub) + "</span></button>";
+    }).join("");
+  }
+  function applyExample(i) {
+    var ex = EXAMPLES[i];
+    state.example = i;
+    $("#brief").value = ex.brief;
+    $("#client").value = ex.client;
+    $("#budget").value = ex.budget;
+    $("#weeks").value = ex.weeks;
+    renderExamples();
+  }
+
+  function render() {
+    renderSteps();
+    renderResult();
+    var busyNow = state.phase === "analyzing" || state.phase === "matching";
+    var btn = $("#analyze-btn");
+    btn.disabled = busyNow;
+    btn.textContent = busyNow ? "분석 중…" : state.project ? "다시 분석하기" : "브리프 분석하기";
+    $("#board-count").textContent = state.board.filter(function (c) { return c.status !== "done"; }).length || "";
+  }
+
+  function init() {
+    loadBoard();
+    $("#crew-role").innerHTML = '<option value="">모든 역할</option>' + E.ROLES.map(function (r) { return '<option value="' + r.id + '">' + esc(r.label) + "</option>"; }).join("");
+    applyExample(0);
+    render();
+    checkHealth();
+
+    document.querySelector(".tabs").addEventListener("click", function (e) { var t = e.target.closest("[data-tab]"); if (t) setTab(t.dataset.tab); });
+    $("#examples").addEventListener("click", function (e) { var t = e.target.closest("[data-ex]"); if (t) applyExample(Number(t.dataset.ex)); });
+    $("#brief").addEventListener("input", function () { if (state.example !== -1) { state.example = -1; renderExamples(); } });
+    $("#brief-form").addEventListener("submit", function (e) { e.preventDefault(); runAnalysis(false); });
+    $("#result").addEventListener("click", onResultClick);
+    $("#result").addEventListener("change", onResultChange);
+    $("#board").addEventListener("click", onBoardClick);
+    $("#reset-board").addEventListener("click", function () { state.board = seedBoard(); state.confirmDelete = null; saveBoard(); renderBoard(); render(); });
+    $("#crew-q").addEventListener("input", renderCrew);
+    $("#crew-role").addEventListener("change", renderCrew);
+    setInterval(function () {
+      var el = document.querySelector("[data-elapsed]");
+      if (el) el.textContent = Math.floor((Date.now() - state.t0) / 1000);
+    }, 500);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
