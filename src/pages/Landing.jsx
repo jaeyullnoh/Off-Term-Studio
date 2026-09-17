@@ -13,7 +13,7 @@ export default function Landing() {
     <main className="container">
       <section className="hero">
         <span className="eyebrow">상명대 서울캠퍼스 · 방학 인하우스 프로덕션</span>
-        <h1>방학에 비는 캠퍼스로<br />진짜 외주를 합니다</h1>
+        <h1>방학에 비는 캠퍼스로<br />외주를 합니다</h1>
         <p>어떤 분이신가요?</p>
       </section>
 

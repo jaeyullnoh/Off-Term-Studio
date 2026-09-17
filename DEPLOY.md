@@ -1,5 +1,15 @@
 # 사이트 업데이트 튜토리얼
 
+## 로고 수정 업데이트
+
+바뀐 파일: `src/components/ui.jsx`, `src/styles.css`, `static/og.png`
+
+1. zip을 풀고 폴더 안 항목 전부를 GitHub **Add file → Upload files**에 끌어다 놓기 (같은 파일은 덮어써짐)
+2. **Commit changes** 한 번 → 자동 배포
+3. 사이트에서 ⌘⇧R → 왼쪽 위 로고가 탭 아이콘과 같은 파란 전원 버튼인지 확인
+
+---
+
 ## 최종본 업데이트 (v2 → 최종)
 
 v2를 이미 배포했다면 빌드 설정은 그대로 두면 됩니다.

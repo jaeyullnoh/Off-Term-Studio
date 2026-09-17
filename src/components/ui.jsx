@@ -37,7 +37,14 @@ export function Header() {
   return (
     <header className="header">
       <div className="container">
-        <Link to="/" className="logo"><i />Off-Term Studio</Link>
+        <Link to="/" className="logo" aria-label="Off-Term Studio 홈">
+          <svg viewBox="0 0 32 32" width="24" height="24" aria-hidden="true">
+            <rect width="32" height="32" rx="8" fill="#2f5bea" />
+            <path d="M9 16a7 7 0 1 0 14 0a7 7 0 1 0-14 0" fill="none" stroke="#fff" strokeWidth="3" />
+            <path d="M16 5v6" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+          Off-Term Studio
+        </Link>
         {links.length > 0 && (
           <nav className="nav">
             {links.map(([to, label, end]) => (
