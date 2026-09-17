@@ -192,7 +192,7 @@ export function scoreStudent(s, role, ctx = {}) {
   return { id: s.id, score, parts, majorFit, matched, pool, wanted, capacity, fits, busy, eligible: majorFit || pool.length >= 2 };
 }
 // 0~100 적합도 (학생 화면용)
-export const matchPercent = (sc) => (sc ? Math.max(0, Math.min(100, Math.round(((sc.score + 10) / 110) * 100))) : 0);
+export const matchPercent = (sc) => (sc ? Math.max(0, Math.min(99, Math.round(((sc.score + 10) / 120) * 100))) : 0);
 
 export function rankCandidates(role, ctx, limit = 8, pool = DEFAULT_POOL) {
   return pool.list.map((s) => scoreStudent(s, role, ctx)).filter((r) => r && r.eligible)
@@ -291,13 +291,10 @@ export function fitBudget(project, budgetKey, pool = DEFAULT_POOL) {
   if (factor >= 0.6) {
     project.roles.forEach((r) => { r.hours = Math.max(2, Math.floor(r.hours * factor)); });
     const pct = Math.round((1 - factor) * 100);
-    project.budgetFit = { status: "scaled", cap: capMan, percent: pct, before };
-    project.risks.unshift(`예산 ${capMan}만 원에 맞춰 공수를 ${pct}% 줄였어요 (조정 전 ${before}만 원).`);
+    project.budgetFit = { status: "scaled", cap: capMan, percent: pct, before, note: `AI 제안 ${before}만 원 → 예산 ${capMan}만 원에 맞춰 공수 ${pct}% 줄임` };
   } else {
-    project.budgetFit = { status: "over", cap: capMan, before };
-    project.risks.unshift(`예상 ${before}만 원으로 예산 ${capMan}만 원을 크게 넘어요. 범위 조정이 필요해요.`);
+    project.budgetFit = { status: "over", cap: capMan, before, note: `AI 제안 ${before}만 원 · 예산 ${capMan}만 원을 크게 넘어 범위 조정 필요` };
   }
-  project.risks = project.risks.slice(0, 4);
   return project;
 }
 

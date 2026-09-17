@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Check, GraduationCap, Minus, Sparkles, UserPlus } from "lucide-react";
-import { MENTOR_MAP, PROFESSOR_MAP, ROLE_MAP, man, matchPercent, quote, scoreStudent, won } from "../../lib/engine.js";
+import { EQUIPMENT_MAP, MENTOR_MAP, PROFESSOR_MAP, ROLE_MAP, man, matchPercent, quote, scoreStudent, won } from "../../lib/engine.js";
+import { WhoDid } from "./NewOrder.jsx";
 import { useStore } from "../../lib/store.jsx";
 import { Avatar, Fold, Timeline, useToast } from "../../components/ui.jsx";
 
@@ -56,6 +57,10 @@ export default function OrderDetail() {
           <div className="price"><small>계약금</small><strong className="num">{man(q.contract)}</strong></div>
           <div className="chips"><span className="chip">{p.weeks}주</span><span className="chip">{q.people}명</span></div>
         </div>
+        {p.equipment?.length > 0 && (
+          <div className="row small"><span className="faint">교내 장비</span>{p.equipment.map((e) => <span key={e} className="chip">{EQUIPMENT_MAP[e]?.label}</span>)}</div>
+        )}
+        {p.sourceDetail && <WhoDid source={p.sourceDetail} fit={p.budgetFit} />}
         <Timeline status={p.status} />
       </div>
 

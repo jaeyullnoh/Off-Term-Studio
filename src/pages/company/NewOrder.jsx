@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, ArrowLeft, Ban, Check, ChevronDown, Minus, Plus, RefreshCw, Sparkles, Trash2 } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Ban, Check, ChevronDown, Cpu, Minus, Plus, RefreshCw, Sparkles, Trash2, Wrench } from "lucide-react";
 import {
-  BUDGETS, ROLES, ROLE_MAP, isSupportRole, man, pickSupervisors, quote, rankCandidates, ruleBreakdown, ruleMatch, ruleReason, scoreStudent, won,
+  BUDGETS, EQUIPMENT_MAP, ROLES, ROLE_MAP, isSupportRole, man, pickSupervisors, quote, rankCandidates, ruleBreakdown, ruleMatch, ruleReason, scoreStudent, won,
 } from "../../lib/engine.js";
 import { api, privacyLine, useHealth } from "../../lib/api.js";
 import { busyIds, nextProjectId, useStore } from "../../lib/store.jsx";
@@ -64,7 +64,7 @@ export default function NewOrder() {
     if (useAI) {
       try {
         const d = await api("/api/analyze", input);
-        p = d.project; src.analyze = "ai"; src.model = d.meta.model;
+        p = d.project; src.analyze = "ai"; src.model = d.meta.model; src.analyzeMs = d.meta.ms;
       } catch (e) {
         setNotice(`AI 분석 실패 · ${e.message} 규칙으로 대신 보여드려요`);
       }
@@ -82,7 +82,7 @@ export default function NewOrder() {
       try {
         const slim = { title: p.title, summary: p.summary, weeks: p.weeks, roles: p.roles.map(({ key, roleId, count, hours, focus, skills }) => ({ key, roleId, count, hours, focus, skills })) };
         const d = await api("/api/match", { project: slim, busy, profile });
-        assignments = d.assignments; src.match = "ai"; setTeamNote(d.teamNote || "");
+        assignments = d.assignments; src.match = "ai"; src.matchMs = d.meta.ms; setTeamNote(d.teamNote || "");
       } catch (e) {
         setNotice(`AI 매칭 실패 · ${e.message} 점수순으로 배정했어요`);
       }
@@ -138,7 +138,7 @@ export default function NewOrder() {
     const id = nextProjectId(projects);
     const final = {
       ...project, id, client: input.client.trim() || "우리 회사", budget: input.budget, status: "recruiting", mine: true, example: false,
-      source: source.analyze === "ai" ? "ai" : "rule", teamNote, createdAt: new Date().toISOString(),
+      source: source.analyze === "ai" ? "ai" : "rule", sourceDetail: source, teamNote, createdAt: new Date().toISOString(),
     };
     Object.assign(final, pickSupervisors(final));
     addProject(final);
@@ -190,7 +190,7 @@ export default function NewOrder() {
   if (phase === "analyzing" || (phase === "matching" && !project)) {
     return <Loading step={1} elapsed={elapsed} ai={health?.ai} />;
   }
-  if (phase === "matching") return <Loading step={2} elapsed={elapsed} ai={health?.ai} />;
+  if (phase === "matching") return <Loading step={2} elapsed={elapsed} ai={health?.ai} project={project} />;
 
   if (phase === "declined") {
     return (
@@ -242,7 +242,14 @@ export default function NewOrder() {
           </div>
         </div>
         {project.decision === "conditional" && project.decisionReason && <div className="banner warn"><AlertTriangle size={18} /><span>{project.decisionReason}</span></div>}
+        {project.budgetFit?.note && (
+          <div className={`banner ${project.budgetFit.status === "over" ? "bad" : "good"}`}><Wrench size={18} /><span>{project.budgetFit.note}</span></div>
+        )}
         {teamNote && <div className="banner ai"><Sparkles size={18} /><span>{teamNote}</span></div>}
+        {project.equipment?.length > 0 && (
+          <div className="row small"><span className="faint">교내 장비</span>{project.equipment.map((e) => <span key={e} className="chip">{EQUIPMENT_MAP[e]?.label}</span>)}</div>
+        )}
+        <WhoDid source={source} fit={project.budgetFit} />
       </div>
 
       <div className="stack">
@@ -349,7 +356,20 @@ export default function NewOrder() {
   );
 }
 
-function Loading({ step, elapsed, ai }) {
+export function WhoDid({ source, fit }) {
+  if (!source) return null;
+  const sec = (ms) => (ms >= 1000 ? ` ${Math.round(ms / 1000)}초` : "");
+  return (
+    <div className="row small" style={{ gap: 6 }}>
+      <Cpu size={14} className="faint" />
+      <span className={`chip ${source.analyze === "ai" ? "ai" : ""}`}>{source.analyze === "ai" ? "AI" : "규칙"} 과제 분석{sec(source.analyzeMs)}</span>
+      <span className={`chip ${source.match === "ai" ? "ai" : ""}`}>{source.match === "ai" ? "AI" : "점수"} 팀 선택{sec(source.matchMs)}</span>
+      {fit?.status === "scaled" && <span className="chip">코드 예산 보정</span>}
+    </div>
+  );
+}
+
+function Loading({ step, elapsed, ai, project }) {
   const items = ["과제 나누기", "팀 고르기", "견적 계산"];
   return (
     <main className="container page">
@@ -361,6 +381,12 @@ function Loading({ step, elapsed, ai }) {
             <li key={t} className={i + 1 < step ? "done" : i + 1 === step ? "on" : ""}>{i + 1 < step ? <Check size={16} /> : <span style={{ width: 16 }}>{i + 1}</span>}{t}</li>
           ))}
         </ol>
+        {project && (
+          <div className="stack" style={{ gap: 8, justifyItems: "center" }}>
+            <b>{project.title}</b>
+            <div className="chips" style={{ justifyContent: "center" }}>{project.roles.map((r) => <span key={r.key} className="chip on">{ROLE_MAP[r.roleId].short} {r.count}명</span>)}</div>
+          </div>
+        )}
         <span className="faint small num">{elapsed}초</span>
       </div>
     </main>

@@ -20,7 +20,9 @@ export function Header() {
   const health = useHealth();
   const side = pathname.startsWith("/company") ? "company" : pathname.startsWith("/student") ? "student" : null;
 
-  const links = side === "company"
+  const links = !side
+    ? [["/about", "작동 방식"]]
+    : side === "company"
     ? [["/company", "내 발주", true], ["/company/new", "새 발주"]]
     : side === "student"
       ? [["/student", "과제", true], ["/student/applications", "내 지원"], ["/student/profile", "프로필"]]
@@ -110,5 +112,19 @@ export function Timeline({ status }) {
 }
 
 export function Footer() {
-  return <footer className="footer">Off-Term Studio 데모 · 학생·교수·멘토·발주사는 모두 가상 인물입니다</footer>;
+  const { reset } = useStore();
+  const nav = useNavigate();
+  const toast = useToast();
+  const [ask, setAsk] = useState(false);
+  return (
+    <footer className="footer">
+      <div>Off-Term Studio 데모 · 학생·교수·멘토·발주사는 모두 가상 인물이에요</div>
+      <div className="row" style={{ justifyContent: "center", marginTop: 8, gap: 4 }}>
+        <Link to="/about" className="btn ghost sm">작동 방식</Link>
+        {ask
+          ? <button className="btn ghost sm" style={{ color: "var(--bad)" }} onClick={() => { reset(); setAsk(false); nav("/"); toast("데모를 처음 상태로 돌렸어요"); }}>정말 초기화</button>
+          : <button className="btn ghost sm" onClick={() => setAsk(true)}>데모 초기화</button>}
+      </div>
+    </footer>
+  );
 }

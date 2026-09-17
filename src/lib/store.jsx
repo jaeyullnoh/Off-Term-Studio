@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { buildPool, sanitizeProfile } from "./engine.js";
 import { seedProjects } from "./seed.js";
 
-const KEY = "ots.v2";
+const KEY = "ots.v3";
 const StoreCtx = createContext(null);
 
 function fresh(role = null) {

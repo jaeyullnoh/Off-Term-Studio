@@ -264,3 +264,26 @@ details.fold .fold-body { padding: 0 16px 16px; display: grid; gap: 8px; }
 
 .card.link.row { display: flex; flex-wrap: nowrap; }
 .card.link.row > div { min-width: 0; }
+
+/* landing flow & about */
+.flow { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 28px 0 6px; flex-wrap: wrap; }
+.flow > div { display: grid; justify-items: center; gap: 4px; text-align: center; min-width: 130px; color: var(--accent); }
+.flow b { color: var(--ink); font-size: 15px; }
+.flow span { color: var(--ink-3); font-size: 13px; }
+.pipeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; counter-reset: step; }
+.pipeline li { display: grid; grid-template-columns: 32px minmax(0,1fr) auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; counter-increment: step; }
+.pipeline li::before { content: counter(step); width: 28px; height: 28px; border-radius: 9px; background: var(--surface-2); color: var(--ink-2); display: grid; place-items: center; font-weight: 800; font-size: 13px; }
+.pipeline li div b { display: block; font-size: 15px; }
+.pipeline li div span { color: var(--ink-3); font-size: 13px; }
+.splitbar { display: flex; height: 38px; border-radius: 12px; overflow: hidden; font-size: 13px; font-weight: 700; }
+.splitbar div { display: grid; place-items: center; color: #fff; white-space: nowrap; }
+.problem { display: grid; gap: 6px; }
+.problem .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--surface-2); color: var(--ink-2); }
+.problem b { font-size: 16px; }
+@media (max-width: 720px) {
+  .flow { gap: 8px; }
+  .flow > svg { transform: rotate(90deg); }
+  .flow { flex-direction: column; }
+  .pipeline li { grid-template-columns: 32px minmax(0,1fr); }
+  .pipeline li .chip { grid-column: 2; justify-self: start; }
+}

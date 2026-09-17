@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Check, Clock, Send } from "lucide-react";
-import { MENTOR_MAP, PROFESSOR_MAP, ROLE_MAP, isSupportRole, man, matchPercent, scoreStudent } from "../../lib/engine.js";
+import { EQUIPMENT_MAP, MENTOR_MAP, PROFESSOR_MAP, ROLE_MAP, isSupportRole, man, matchPercent, scoreStudent } from "../../lib/engine.js";
 import { applicationStatus, useStore } from "../../lib/store.jsx";
 import { Avatar, useToast } from "../../components/ui.jsx";
 
@@ -36,7 +36,7 @@ export default function ProjectDetail() {
         <span className="faint small">{p.client}</span>
         <h1 style={{ fontSize: 24 }}>{p.title}</h1>
         {p.summary && <p className="muted">{p.summary}</p>}
-        <div className="chips"><span className="chip"><Clock size={13} />{p.weeks}주</span>{st && <span className={`chip ${st.tone}`}>{st.label}</span>}</div>
+        <div className="chips"><span className="chip"><Clock size={13} />{p.weeks}주</span>{(p.equipment || []).map((e) => <span key={e} className="chip">{EQUIPMENT_MAP[e]?.label}</span>)}{st && <span className={`chip ${st.tone}`}>{st.label}</span>}</div>
       </div>
 
       <div className="grid-2">

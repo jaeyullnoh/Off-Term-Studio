@@ -6,6 +6,7 @@ import "./styles.css";
 import { StoreProvider } from "./lib/store.jsx";
 import { Footer, Header, ToastProvider } from "./components/ui.jsx";
 import Landing from "./pages/Landing.jsx";
+import About from "./pages/About.jsx";
 import Orders from "./pages/company/Orders.jsx";
 import NewOrder from "./pages/company/NewOrder.jsx";
 import OrderDetail from "./pages/company/OrderDetail.jsx";
@@ -29,6 +30,7 @@ createRoot(document.getElementById("root")).render(
           <Header />
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/about" element={<About />} />
             <Route path="/company" element={<Orders />} />
             <Route path="/company/new" element={<NewOrder />} />
             <Route path="/company/orders/:id" element={<OrderDetail />} />
